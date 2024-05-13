@@ -28,22 +28,7 @@ app.get('/', async (req, res) => {
     res.render('index', {pageTitle, dbData} );
 });
 
-app.post('/submit', async (req, res) => {
-    try {
-      console.log(req.body);
-      //const {plant1, plant2} = req.body;
-        // Example query to fetch users from 'users' table
-        const sql = 'SELECT * FROM plants';
-        const plants = await db.query(sql);
-        console.log(plants);
-        res.render('dbList',{plants});
-        //res.json(plants); // Return fetched data as JSON response
-       //res.render('dbList', {plants});
-      } catch (error) {
-        console.error('Error executing query:', error);
-        res.status(500).send('Internal Server Error');
-      }
-});
+
 
 
 
