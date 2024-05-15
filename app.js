@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');//must be installed with npm
 const app = express();
 
 //set public folder for static web pages
-//app.use(express.static('public'));
+app.use(express.static('../public/style/style.css'));
 
 //set dynamic web pages, set views and engine
 app.set('view engine', 'ejs');
@@ -28,6 +28,22 @@ app.get('/', async (req, res) => {
     res.render('index', {pageTitle, dbData} );
 });
 
+app.post('/', async (req, res) => {
+    //res.send("hello World");//serves index.html
+    //getting input data from the form
+    console.log(req.body);
+    const tableName = req.body;
+
+    const pageTitle = "Dynamic webpage";
+
+    const sql = `SELECT * FROM ${tableName.table_name}`;
+    const dbData = await db.query(sql);
+    console.log(dbData);
+    const sql2 = `DESCRIBE ${tableName.table_name}`;
+    const dbDataHeaders = await db.query(sql2);
+    console.log(dbDataHeaders);
+    res.render('index', {pageTitle, dbData, dbDataHeaders} );
+});
 
 
 
