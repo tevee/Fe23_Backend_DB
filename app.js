@@ -9,7 +9,7 @@ const bodyParser = require('body-parser');//must be installed with npm
 const app = express();
 
 //set public folder for static web pages
-app.use(express.static('../public/style/style.css'));
+app.use(express.static('public'));
 
 //set dynamic web pages, set views and engine
 app.set('view engine', 'ejs');
@@ -19,48 +19,52 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 ////////////////Routing
 
+let currentTable;
 app.get('/', async (req, res) => {
     //res.send("hello World");//serves index.html
-    const pageTitle = "Dynamic webpage";
+    const pageTitle = "Home";
     const sql = 'SHOW tables';
+    const tableHeader = 'Tables';
     const dbData = await db.query(sql);
     console.log(dbData);
-    res.render('index', {pageTitle, dbData} );
+    res.render('index', {pageTitle, currentTable, tableHeader, dbData} );
 });
 
-let currentTable;
 app.post('/', async (req, res) => {
     //res.send("hello World");//serves index.html
     //getting input data from the form
     console.log(req.body);
     const tableName = req.body;
-    const pageTitle = "Dynamic webpage";
+    const pageTitle = "Home";
     const sql = `SELECT * FROM ${tableName.table_name}`;
-    currentTable = tableName.table_name
+    currentTable = tableName.table_name;
+    const tableHeader = tableName.table_name;
     const dbData = await db.query(sql);
-    console.log(dbData);
+    console.log('dbData', dbData);
     const sql2 = `DESCRIBE ${tableName.table_name}`;
     const dbDataHeaders = await db.query(sql2);
-    console.log(dbDataHeaders);
-    res.render('index', {pageTitle, dbData, dbDataHeaders} );
+    res.render('index', {pageTitle, currentTable, tableHeader, dbData, dbDataHeaders} );
 });
 
 app.get('/removeData', async (req, res) => {
     //res.send("hello World");//serves index.html
-    const pageTitle = "Dynamic webpage";
+    const pageTitle = "Remove Data";
     const sql = `SELECT * FROM ${currentTable}`;
     const dbData = await db.query(sql);
     console.log(dbData);
-    res.render('removeData', {pageTitle, dbData} );
+    const sql2 = `DESCRIBE ${currentTable}`;
+    const dbDataHeaders = await db.query(sql2);
+    res.render('removeData', {pageTitle, currentTable, dbData, dbDataHeaders} );
 });
 app.post('/removeData', async (req, res) => {
     //res.send("hello World");//serves index.html
     //getting input data from the form
     console.log(req.body);
     const requestData = req.body;
-    const pageTitle = "Dynamic webpage";
+    const [keys, values] = [Object.keys(requestData).join(', '), Object.values(requestData).join(', ')];
+    const pageTitle = "Remove Data";
     //execute delete query on a table.row
-    const sqlDeleteQuery = `DELETE FROM ${currentTable} WHERE id=${requestData.id}`;
+    const sqlDeleteQuery = `DELETE FROM ${currentTable} WHERE ${keys} = ${values}`;
     const deleteQuery = await db.query(sqlDeleteQuery);
     console.log(deleteQuery);
     //get table data
@@ -71,10 +75,103 @@ app.post('/removeData', async (req, res) => {
     const dbDataHeaders = await db.query(sql2);
     console.log(dbDataHeaders);
     //show webpage to the user
-    res.render('removeData', {pageTitle, dbData, dbDataHeaders} );
+    res.render('removeData', {pageTitle, currentTable, dbData, dbDataHeaders} );
 });
 
+app.get('/updateData', async (req, res) => {
+    const pageTitle = "Update Data";
+    const sql = `SELECT * FROM ${currentTable}`;
+    const dbData = await db.query(sql);
+    console.log(dbData);
+    const sql2 = `DESCRIBE ${currentTable}`;
+    const dbDataHeaders = await db.query(sql2);
+    console.log('dbDataHeaders', dbDataHeaders);
+    res.render('updateData', {pageTitle, currentTable, dbData, dbDataHeaders});
+});
 
+app.post('/updateData', async (req, res) => {
+    const pageTitle = "Update Data";
+    const requestData = req.body;
+    console.log('reqeustData', requestData);
+    
+    const keys = Object.keys(requestData);
+    const values = Object.values(requestData);
+    const keyValuesArr = keys.map((key, i) => {
+        const value = typeof values[i] === 'string' ? `'${values[i]}'` : values[i];
+        return `${key} = ${value}`
+    });
+
+    const setClause = keyValuesArr.filter(requestData => !requestData.includes('_id')).join(', ');
+    const whereClause = keyValuesArr.filter(requestData => requestData.includes('_id')).toString();
+
+    const sqlUpdateQuery = `
+        UPDATE ${currentTable}
+        SET ${setClause}
+        WHERE ${whereClause}
+    `;
+    const updateQuery = await db.query(sqlUpdateQuery, keyValuesArr);
+    console.log(updateQuery);
+
+    const sql = `SELECT * FROM ${currentTable}`;
+    const dbData = await db.query(sql);
+    console.log(dbData);
+
+    const sql2 = `DESCRIBE ${currentTable}`;
+    const dbDataHeaders = await db.query(sql2);
+    res.render('updateData', {pageTitle, currentTable, dbData, dbDataHeaders});
+});
+
+app.get('/createTable', async (req, res) => {
+    const pageTitle = "Create Table";
+    const sql = `SELECT * FROM ${currentTable}`;
+    const dbData = await db.query(sql);
+    console.log(dbData);
+    const sql2 = `DESCRIBE ${currentTable}`;
+    const dbDataHeaders = await db.query(sql2);
+    console.log('dbDataHeaders', dbDataHeaders);
+    res.render('createTable', {pageTitle, currentTable, dbData, dbDataHeaders});
+});
+
+app.get('/createTableRow', async (req, res) => {
+    const pageTitle = "Create New Table Row";
+    const sql = `SELECT * FROM ${currentTable}`;
+    const dbData = await db.query(sql);
+    console.log(dbData);
+    const sql2 = `DESCRIBE ${currentTable}`;
+    const dbDataHeaders = await db.query(sql2);
+    console.log('dbDataHeaders', dbDataHeaders);
+    res.render('createTableRow', {pageTitle, currentTable, dbData, dbDataHeaders});
+});
+
+app.post('/createTableRow', async (req, res) => {
+    const pageTitle = "Create New Table Row";
+    const requestData = req.body;
+    console.log('reqeustData', requestData);
+    
+    const keys = Object.keys(requestData).map(key => `${key}`).join(', ');
+    const values = Object.values(requestData).map((value, i) => {
+        const val = typeof value[i] === 'string' ? `'${value}'` : value;
+        return `${val}`;
+    }).join(', ');
+    console.log('keys', keys);
+    console.log('values', values);
+
+    const sqlCreateQuery = `
+        INSERT INTO ${currentTable}
+        (${keys})
+        VALUES (${values});
+    `;
+    const createQuery = await db.query(sqlCreateQuery, keys, values);
+    console.log(createQuery);
+
+    const sql = `SELECT * FROM ${currentTable}`;
+    const dbData = await db.query(sql);
+    console.log(dbData);
+
+    const sql2 = `DESCRIBE ${currentTable}`;
+    const dbDataHeaders = await db.query(sql2);
+    res.render('createTableRow', {pageTitle, currentTable, dbData, dbDataHeaders});
+});
 
 //server configuration
 const port = 3000;

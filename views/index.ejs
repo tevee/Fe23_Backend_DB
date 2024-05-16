@@ -3,13 +3,16 @@
 <body>
     <%- include('partials/header') %>
     
+    <p> <%= pageTitle; %></p>
+
     <form action="/" method="POST">
-        table name: <input type="text" name="table_name" >
+        table name: <input type="text" name="table_name" required>
         <button type="submit">Get Table</button>
     </form>
 
-    <p> <%= pageTitle; %></p>
+    <p>Active Table: <%= currentTable; %></p>
 
+    <p><%= tableHeader; %></p>
 
     <%- include('partials/dataTable') %>
     

@@ -2,14 +2,10 @@
 
 <body>
     <%- include('partials/header') %>
-    
 
     <p> <%= pageTitle; %></p>
 
-    <form action="/removeData" method="POST">
-        row id to be removed: <input type="number" name="<%=  dbDataHeaders[0][0] %>" >
-        <button type="submit">Remove row</button>
-    </form>
+
 
     <p>Active Table: <%= currentTable; %></p>
 

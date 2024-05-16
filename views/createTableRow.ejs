@@ -1,0 +1,25 @@
+<%- include('partials/head') %>
+
+<body>
+    <%- include('partials/header') %>
+
+    <p> <%= pageTitle; %></p>
+
+    <% const dataTypeToInputType = { 'date': 'date', 'int': 'number' }; %>
+    <form class="form" action="/createTableRow" method="POST">
+        <% dbDataHeaders.slice(1).forEach( header => { %>
+            <% const inputType = dataTypeToInputType[header[1]]; %>
+            Add <%= header[0]; %> (Required): <input type="<%= inputType || 'text' %>" name="<%= header[0]; %>" required>
+        <% }); %>
+        <div class="form-btn-container">
+            <button type="submit">Create row</button>
+        </div>
+    </form>
+
+    <p>Active Table: <%= currentTable; %></p>
+
+    <%- include('partials/dataTable') %>
+    
+    <%- include('partials/footer') %>
+</body>
+</html>

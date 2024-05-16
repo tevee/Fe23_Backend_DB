@@ -1,3 +1,23 @@
 body {
-    background-color: blue;
+    background-color: aqua;
+}
+
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    width: 400px;
+    margin: 2rem 0;
+}
+
+.form *:not(:last-child) {
+    margin: 0.4rem 0 0.8rem;
+}
+
+.form-btn-container {
+    width: auto;
 }
