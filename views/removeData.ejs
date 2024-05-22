@@ -7,7 +7,7 @@
     <p> <%= pageTitle; %></p>
 
     <form action="/removeData" method="POST">
-        row id to be removed: <input type="number" name="<%=  dbDataHeaders[0][0] %>" >
+        row id to be removed: <input type="number" name="<%=  dbDataHeaders[0].Field %>" >
         <button type="submit">Remove row</button>
     </form>
 

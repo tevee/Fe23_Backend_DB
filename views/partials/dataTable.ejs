@@ -1,19 +1,17 @@
 <% if(typeof dbData != 'undefined'){%>
 <table>
-    <% if(typeof dbDataHeaders != 'undefined' ){%>
-    <% dbDataHeaders.forEach( header => {%>
-        <th> <%= header[0]; %> </th>
+    <% Object.keys(dbData[0]).forEach( header => { %>
+        <th> <%= header; %> </th>
     <% }); %>
-    <% } %>
-<% dbData.forEach( row => {%>
-    <tr>
-    <% row.forEach( value => {%>
-    <td> 
-        <%= value; %>    
-    </td>
+    <% dbData.forEach( row => {%>
+        <tr>
+        <% Object.values(row).forEach( value => {%>
+        <td> 
+            <%= value; %>    
+        </td>
+        <% }); %>
+        </tr>
     <% }); %>
-    </tr>
-<% }); %>
 
 </table>
 <% } %>

@@ -9,9 +9,9 @@
     <form class="form" action="/updateData" method="POST">
         <% dbDataHeaders.slice(1).forEach( header => { %>
             <% const inputType = dataTypeToInputType[header[1]]; %>
-            Update <%= header[0]; %> (Optional): <input type="<%= inputType || 'text' %>" name="<%= header[0]; %>" required>
+            Update <%= Object.values(header)[0]; %> (Optional): <input type="<%= inputType || 'text' %>" name="<%= Object.values(header)[0]; %>" required>
         <% }); %>
-        Row id to be updated: <input type="number" name="<%= dbDataHeaders[0][0]; %>" required>
+        Row id to be updated: <input type="number" name="<%= dbDataHeaders[0].Field; %>" required>
         <div class="form-btn-container">
             <button type="submit">Update row</button>
         </div>

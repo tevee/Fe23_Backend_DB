@@ -1,4 +1,4 @@
-const mysql = require("mysql2");//must be installed with npm
+import mysql from "mysql2";
 
 // Create a pool of database connections
 const pool = mysql.createPool({
@@ -10,19 +10,17 @@ const pool = mysql.createPool({
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
-    rowsAsArray: true,
+    // rowsAsArray: true, // changes data from db to arrays in an array
 
   });
   // Export a function to execute SQL queries
-module.exports = {
-    query: (sql, values) => {
-      return new Promise((resolve, reject) => {
-        pool.query(sql, values, (err, results) => {
-          if (err) {
-            return reject(err);
-          }
-          return resolve(results);
-        });
+export function query (sql, values) {
+    return new Promise((resolve, reject) => {
+      pool.query(sql, values, (err, results) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(results);
       });
-    }
+    });
   };

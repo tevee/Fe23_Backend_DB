@@ -1,9 +1,11 @@
-//in dev run nodemon with for instant reload
-//add requiered library 
-const express = require('express'); //must be installed with npm
-const ejs = require('ejs'); //must be installed with npm
-const db = require('./db.js'); // Import the database module
-const bodyParser = require('body-parser');//must be installed with npm
+//const express =  require('express'); //must be installed with npm
+import express from "express";
+//const ejs = require('ejs'); //must be installed with npm
+import ejs from "ejs";
+//const db = require('./db.js'); // Import the database module
+import * as db from "./db.js"
+//const bodyParser = require('body-parser');//must be installed with npm
+import bodyParser from "body-parser";
 
 //create variable representing express
 const app = express();
@@ -16,6 +18,7 @@ app.set('view engine', 'ejs');
 
 // Set up body parser middleware to parse URL-encoded form data
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 ////////////////Routing
 
@@ -24,10 +27,9 @@ app.get('/', async (req, res) => {
     //res.send("hello World");//serves index.html
     const pageTitle = "Home";
     const sql = 'SHOW tables';
-    const tableHeader = 'Tables';
     const dbData = await db.query(sql);
     console.log(dbData);
-    res.render('index', {pageTitle, currentTable, tableHeader, dbData} );
+    res.render('index', {pageTitle, currentTable, dbData} );
 });
 
 app.post('/', async (req, res) => {
@@ -38,12 +40,9 @@ app.post('/', async (req, res) => {
     const pageTitle = "Home";
     const sql = `SELECT * FROM ${tableName.table_name}`;
     currentTable = tableName.table_name;
-    const tableHeader = tableName.table_name;
     const dbData = await db.query(sql);
     console.log('dbData', dbData);
-    const sql2 = `DESCRIBE ${tableName.table_name}`;
-    const dbDataHeaders = await db.query(sql2);
-    res.render('index', {pageTitle, currentTable, tableHeader, dbData, dbDataHeaders} );
+    res.render('index', {pageTitle, currentTable, dbData} );
 });
 
 app.get('/removeData', async (req, res) => {
@@ -82,7 +81,7 @@ app.get('/updateData', async (req, res) => {
     const pageTitle = "Update Data";
     const sql = `SELECT * FROM ${currentTable}`;
     const dbData = await db.query(sql);
-    console.log(dbData);
+    console.log('dbData', dbData);
     const sql2 = `DESCRIBE ${currentTable}`;
     const dbDataHeaders = await db.query(sql2);
     console.log('dbDataHeaders', dbDataHeaders);
@@ -172,6 +171,52 @@ app.post('/createTableRow', async (req, res) => {
     const dbDataHeaders = await db.query(sql2);
     res.render('createTableRow', {pageTitle, currentTable, dbData, dbDataHeaders});
 });
+
+// Return JSON table data
+
+app.get('/tables', async (req, res) => {
+    const sql = `SHOW TABLES`;
+    const dbData = await db.query(sql);
+    console.log(dbData);
+    res.json(dbData);
+})
+
+app.get('/departments', async (req, res) => {
+    let sql = '';
+    const {department_id} = req.query;
+    console.log(department_id);
+
+    if(department_id) sql = `SELECT * FROM departments WHERE department_id = ${department_id}`;
+    else sql = `SELECT * FROM departments`;
+
+    const dbData = await db.query(sql);
+    console.log(dbData);
+    res.json(dbData);
+})
+
+app.get('/employees', async (req, res) => {
+    let sql = '';
+    const {employee_id} = req.query;
+
+    if(employee_id) sql = `SELECT * FROM employees WHERE employee_id = ${employee_id}`;
+    else sql = `SELECT * FROM employees`;
+
+    const dbData = await db.query(sql);
+    console.log(dbData);
+    res.json(dbData);
+})
+
+app.get('/projects', async (req, res) => {
+    let sql = '';
+    const {project_id} = req.query;
+
+    if(project_id) sql = `SELECT * FROM projects WHERE project_id = ${project_id}`;
+    else sql = `SELECT * FROM projects`;
+
+    const dbData = await db.query(sql);
+    console.log(dbData);
+    res.json(dbData);
+})
 
 //server configuration
 const port = 3000;
